@@ -1,0 +1,65 @@
+
+
+public enum BonusType { SpeedBoost = 1, TripleShot = 2 }
+public class Bonus : MonoBehaviour
+{
+    public BonusType bonusType;
+    // Ek özellikler ve mantık buraya eklenebilir.
+}
+
+
+public enum BonusType { SpeedBoost = 1, TripleShot = 2 }
+public class Bonus : MonoBehaviour
+{
+    public BonusType bonusType;
+    // Ek özellikler ve mantık buraya eklenebilir.
+}
+
+public float speedMultiplier = 1f; // Varsayılan hız çarpanı
+private bool isSpeedBoostActive = false;
+
+public void ActivateSpeedBoost(float boostAmount, float duration)
+{
+    if (isSpeedBoostActive) return;
+
+    isSpeedBoostActive = true;
+    speedMultiplier *= boostAmount;
+    StartCoroutine(DeactivateSpeedBoost(duration));
+}
+
+private IEnumerator DeactivateSpeedBoost(float duration)
+{
+    yield return new WaitForSeconds(duration);
+    speedMultiplier = 1f; // Varsayılan değere dön
+    isSpeedBoostActive = false;
+}
+
+private void OnTriggerEnter2D(Collider2D other)
+{
+    if (other.CompareTag("Player"))
+    {
+        Player player = other.GetComponent<Player>();
+        if (bonusType == BonusType.SpeedBoost)
+        {
+            player.ActivateSpeedBoost(2f, 5f); // 2x hız çarpanı, 5 saniye süre
+        }
+        Destroy(this.gameObject); // Bonus'u sahneden kaldır
+    }
+}
+
+public GameObject speedBonusPrefab;
+
+private void SpawnSpeedBonus()
+{
+    Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), Random.Range(-4f, 4f), 0f);
+    Instantiate(speedBonusPrefab, spawnPosition, Quaternion.identity);
+}
+
+private IEnumerator SpawnRoutine()
+{
+    while (true)
+    {
+        SpawnSpeedBonus();
+        yield return new WaitForSeconds(10f); // 10 saniyede bir bonus üret
+    }
+}
